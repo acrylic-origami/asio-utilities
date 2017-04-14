@@ -71,7 +71,7 @@ class AsyncCondition<T> {
     return $this->condition;
   }
   
-  final private function create((function(AsyncCondition<T>): Awaitable<void>) $f): Awaitable<T> {
+  final private static function create((function(AsyncCondition<T>): Awaitable<void>) $f): Awaitable<T> {
     $ret = new self();
     $core = $f($ret);
     return $ret->gen($core);
