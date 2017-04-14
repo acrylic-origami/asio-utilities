@@ -5,8 +5,8 @@
   "homepage": "https://github.com/hhvm/asio-utilities",
   "license": ["BSD-3-Clause"],
   "autoload": {
-    "psr-4": [
+    "psr-4": {
       "HH\\Asio": "src"
-    ]
+    }
   }
 }
