@@ -9,13 +9,14 @@
 
 namespace HH\Asio {
 
-<<__ConsistentConstruct>>
 /**
  * A wrapper around ConditionWaitHandle that allows notification events
  * to occur before the condition is awaited.
  */
 class AsyncCondition<T> {
   private ?Awaitable<T> $condition = null;
+  
+  protected function __construct() {}
 
   /**
    * Notify the condition variable of success and set the result.
@@ -66,8 +67,8 @@ class AsyncCondition<T> {
     return $this->condition;
   }
   
-  final private function create((function(this): Awaitable<void>) $f): Awaitable<T> {
-    $ret = new static();
+  final private function create((function(AsyncCondition<T>): Awaitable<void>) $f): Awaitable<T> {
+    $ret = new self();
     $core = $f($ret);
     return $ret->gen($core);
   }
