@@ -66,10 +66,10 @@ class AsyncCondition<T> {
     return $this->condition;
   }
   
-  final private function create((function(this): Awaitable<void>) $f): (Awaitable<T>, this) {
+  final private function create((function(this): Awaitable<void>) $f): Awaitable<T> {
     $ret = new static();
     $core = $f($ret);
-    return tuple($ret->gen($core), $ret);
+    return $ret->gen($core);
   }
 }
 
