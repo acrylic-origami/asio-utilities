@@ -47,6 +47,10 @@ class AsyncCondition<T> {
       $this->condition->fail($exception);
     }
   }
+  
+  final public function isNotified(): bool {
+    return !is_null($this->condition) && (!$this->condition instanceof ConditionWaitHandle || $this->condition->isFinished());
+  }
 
   /**
    * Asynchronously wait for the condition variable to be notified and
