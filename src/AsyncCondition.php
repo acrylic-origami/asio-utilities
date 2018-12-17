@@ -49,7 +49,7 @@ class AsyncCondition<T> {
   }
   
   final public function isNotified(): bool {
-    return !is_null($this->condition) && (!$this->condition instanceof ConditionWaitHandle || $this->condition->isFinished());
+    return !\is_null($this->condition) && (!$this->condition instanceof ConditionWaitHandle || has_finished($this->condition));
   }
 
   /**
@@ -64,14 +64,12 @@ class AsyncCondition<T> {
    */
   final private function gen(Awaitable<void> $notifiers): Awaitable<T> {
     if ($this->condition === null) {
-      $this->condition = ConditionWaitHandle::create(
-        $notifiers->getWaitHandle(),
-      );
+      $this->condition = ConditionWaitHandle::create($notifiers);
     }
     return $this->condition;
   }
   
-  final private static function create((function(AsyncCondition<T>): Awaitable<void>) $f): Awaitable<T> {
+  final public static function create((function(AsyncCondition<T>): Awaitable<void>) $f): Awaitable<T> {
     $ret = new self();
     $core = $f($ret);
     return $ret->gen($core);
