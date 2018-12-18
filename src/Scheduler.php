@@ -19,15 +19,16 @@ final class Scheduler {
   private static ?AsyncConditionNode<mixed> $lastNotified;
   private static ?AsyncConditionNode<mixed> $lastAwaited;
   private static ?Awaitable<mixed> $notifiers;
-  private static bool $finished = false;
+  private static bool $init = false;
 
   protected static function maybe_init(): void {
-    if(!static::$finished) {
+    if(!static::$init) {
       $head = new AsyncConditionNode();
       static::$lastAdded = $head;
       static::$lastNotified = $head;
       static::$lastAwaited = $head;
       static::$notifiers = async {};
+      static::$init = true;
     }
   }
 
@@ -104,7 +105,6 @@ final class Scheduler {
         // End of iteration, no pending events to await.
         static::$lastAdded = null;
         static::$lastNotified = null;
-        static::$finished = true;
         return;
       }
       await static::$lastAwaited->gen(static::$notifiers ?? async {});
