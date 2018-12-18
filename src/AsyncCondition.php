@@ -13,10 +13,11 @@ namespace HH\Asio {
  * A wrapper around ConditionWaitHandle that allows notification events
  * to occur before the condition is awaited.
  */
+<<__ConsistentConstruct>>
 class AsyncCondition<T> {
   private ?Awaitable<T> $condition = null;
   
-  protected function __construct() {}
+  public function __construct() {}
 
   /**
    * Notify the condition variable of success and set the result.
@@ -62,18 +63,40 @@ class AsyncCondition<T> {
    * as the notification is issued only once, asynchronous execution unrelated
    * to $notifiers is allowed to trigger the notification.
    */
-  final private function gen(Awaitable<void> $notifiers): Awaitable<T> {
+  final public function gen(Awaitable<mixed> $notifiers): Awaitable<T> {
     if ($this->condition === null) {
-      $this->condition = ConditionWaitHandle::create($notifiers);
+      $this->condition = ConditionWaitHandle::create(async { await $notifiers; });
     }
     return $this->condition;
   }
   
-  final public static function create((function(AsyncCondition<T>): Awaitable<void>) $f): Awaitable<T> {
-    $ret = new self();
+  final public static function create((function(this): Awaitable<mixed>) $f): Awaitable<T> {
+    $ret = new static();
     $core = $f($ret);
     return $ret->gen($core);
   }
+  // final public static async function create_many((function((function(): this)): Awaitable<void>) $f): Awaitable<T> {
+  //   $bell = new Pointer(new static());
+  //   $running = new Pointer(false);
+  //   $core = new NullablePointer();
+  //   $children = vec[];
+  //   $factory = () ==> {
+  //     $running->set(true);
+  //     if(!has_finished($bell->get()))
+  //       $bell->get()->succeed(null);
+      
+  //     $target = new static();
+  //     $_core = $core->get();
+  //     if($_core !== null) {
+  //       return $target;
+  //     }
+  //   };
+  //   $core->set($f($factory));
+  //   $lifetime->gen($core->get() ?? async {});
+  //   while(true) {
+      
+  //   }
+  // }
 }
 
 } // namespace HH\Asio
